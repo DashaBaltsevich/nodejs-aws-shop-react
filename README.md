@@ -1,3 +1,14 @@
+S3 Bucket 
+https://serving-spa-1-manually.s3.eu-central-1.amazonaws.com/index.html
+
+CloudFront
+https://d31de00i8tzb2t.cloudfront.net/
+
+![image](https://github.com/DashaBaltsevich/nodejs-aws-shop-react/assets/60328521/f44061d5-24ca-410d-a3d8-9c734019900d)
+
+
+
+
 # React-shop-cloudfront
 
 This is frontend starter project for nodejs-aws mentoring program. It uses the following technologies:
