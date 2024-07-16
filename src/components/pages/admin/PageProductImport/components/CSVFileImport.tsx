@@ -13,9 +13,12 @@ type CSVFileImportProps = {
 const uploadFile = async (file: File, url: string): Promise<Response> => {
 	console.log("uploadFile to", url)
 
-	const headers = {
+	const headers: Record<string, string> = {
 		"Content-Type": "text/csv",
-		Authorization: `Basic ${localStorage.getItem("authorization_token")}`,
+	}
+
+	if (localStorage.getItem("authorization_token")) {
+		headers.Authorization = `Basic ${localStorage.getItem("authorization_token")}`
 	}
 
 	console.log("headers", headers)
