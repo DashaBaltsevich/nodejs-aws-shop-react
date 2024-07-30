@@ -1,39 +1,77 @@
-import axios, { AxiosError } from "axios";
-import React from "react";
-import { useQuery, useQueryClient, useMutation } from "react-query";
-import API_PATHS from "~/constants/apiPaths";
-import { CartItem } from "~/models/CartItem";
+import axios from "axios"
+import React from "react"
+import { useQuery, useQueryClient, useMutation } from "react-query"
+import API_PATHS from "~/constants/apiPaths"
+import { CartItem } from "~/models/CartItem"
 
 export function useCart() {
-  return useQuery<CartItem[], AxiosError>("cart", async () => {
-    const res = await axios.get<CartItem[]>(`${API_PATHS.cart}/profile/cart`, {
-      headers: {
-        Authorization: `Basic ${localStorage.getItem("authorization_token")}`,
-      },
-    });
-    return res.data;
-  });
+	return useQuery("cart", async () => {
+		const res = await axios.get(`${API_PATHS.cart}/cart`, {
+			headers: {
+				Authorization: `Basic ${localStorage.getItem("authorization_token")}`,
+			},
+		})
+
+		const { data } = res.data
+		const itemsIds = data.cart.items.map(
+			({ product_id, count }: { product_id: string; count: number }) => ({
+				product_id,
+				count,
+			})
+		)
+
+		const products = await Promise.all(
+			itemsIds.map(async (item: any) => {
+				const productRes = await axios.get(
+					`${API_PATHS.product}/products/${item.product_id}`,
+					{
+						headers: {
+							Authorization: `Basic ${localStorage.getItem(
+								"authorization_token"
+							)}`,
+						},
+					}
+				)
+
+				return {
+					product: productRes.data,
+					count: item.count,
+				}
+			})
+		)
+
+		return products
+	})
 }
 
 export function useCartData() {
-  const queryClient = useQueryClient();
-  return queryClient.getQueryData<CartItem[]>("cart");
+	const queryClient = useQueryClient()
+	return queryClient.getQueryData<CartItem[]>("cart")
 }
 
 export function useInvalidateCart() {
-  const queryClient = useQueryClient();
-  return React.useCallback(
-    () => queryClient.invalidateQueries("cart", { exact: true }),
-    []
-  );
+	const queryClient = useQueryClient()
+	return React.useCallback(
+		() => queryClient.invalidateQueries("cart", { exact: true }),
+		[]
+	)
 }
 
 export function useUpsertCart() {
-  return useMutation((values: CartItem) =>
-    axios.put<CartItem[]>(`${API_PATHS.cart}/profile/cart`, values, {
-      headers: {
-        Authorization: `Basic ${localStorage.getItem("authorization_token")}`,
-      },
-    })
-  );
+	return useMutation((values: any) => {
+		const obj = {
+			items: [
+				{
+					product_id: values.product.id,
+					count: values.count,
+					price: values.price || 0,
+				},
+			],
+		}
+		return axios.put<CartItem[]>(`${API_PATHS.cart}/cart`, obj, {
+			headers: {
+				Authorization: `Basic ${localStorage.getItem("authorization_token")}`,
+			},
+		})
+	})
 }
