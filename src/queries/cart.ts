@@ -6,7 +6,7 @@ import { CartItem } from "~/models/CartItem"
 
 export function useCart() {
 	return useQuery("cart", async () => {
-		const res = await axios.get(`${API_PATHS.cart}/cart`, {
+		const res = await axios.get(`${API_PATHS.bff}/cart/api/profile/cart`, {
 			headers: {
 				Authorization: `Basic ${localStorage.getItem("authorization_token")}`,
 			},
@@ -23,7 +23,7 @@ export function useCart() {
 		const products = await Promise.all(
 			itemsIds.map(async (item: any) => {
 				const productRes = await axios.get(
-					`${API_PATHS.product}/products/${item.product_id}`,
+					`${API_PATHS.bff}/product/products/${item.product_id}`,
 					{
 						headers: {
 							Authorization: `Basic ${localStorage.getItem(
@@ -39,7 +39,7 @@ export function useCart() {
 				}
 			})
 		)
-
+		console.log("products", products)
 		return products
 	})
 }
@@ -68,7 +68,7 @@ export function useUpsertCart() {
 				},
 			],
 		}
-		return axios.put<CartItem[]>(`${API_PATHS.cart}/cart`, obj, {
+		return axios.put<CartItem[]>(`${API_PATHS.bff}/cart/api/profile/cart`, obj, {
 			headers: {
 				Authorization: `Basic ${localStorage.getItem("authorization_token")}`,
 			},
